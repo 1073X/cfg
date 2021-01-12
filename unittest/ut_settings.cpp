@@ -31,10 +31,12 @@ TEST_F(ut_settings, optional) {
     EXPECT_CALL(m, get(testing::StrEq("item")))
         .WillOnce(Return(variant(123)))
         .WillOnce(Return(variant()))
+        .WillOnce(Return(variant()))
         .WillOnce(Return(variant(1.2)));
 
     EXPECT_EQ(123, settings.optional<int32_t>("item", 321));
     EXPECT_EQ(321, settings.optional<int32_t>("item", 321));
+    EXPECT_EQ(0, settings.optional<int32_t>("item"));
     EXPECT_ANY_THROW(settings.optional<int32_t>("item", 321));
 }
 
@@ -47,4 +49,16 @@ TEST_F(ut_settings, required_child) {
     EXPECT_EQ("child_name", child.name());
 
     EXPECT_ANY_THROW(settings.required<miu::cfg::settings>("child"));
+}
+
+TEST_F(ut_settings, optional_child) {
+    mock child_src;
+    EXPECT_CALL(child_src, name()).WillRepeatedly(Return("child_name"));
+    EXPECT_CALL(m, get_child(testing::_)).WillOnce(Return(&child_src)).WillOnce(Return(nullptr));
+
+    auto child = settings.optional<miu::cfg::settings>("child", { nullptr });
+    EXPECT_EQ("child_name", child.name());
+
+    EXPECT_NO_THROW(child = settings.optional<miu::cfg::settings>("child"));
+    EXPECT_FALSE(child);
 }
