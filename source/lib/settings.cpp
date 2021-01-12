@@ -1,5 +1,9 @@
 
-#include "settings.hpp"
+#include "cfg/settings.hpp"
+
+#include <com/fatal_error.hpp>
+
+#include "source.hpp"
 
 namespace miu::cfg {
 

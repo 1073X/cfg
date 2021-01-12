@@ -1,11 +1,11 @@
 #pragma once
 
 #include <cassert>
-#include <com/fatal_error.hpp>
-
-#include "source.hpp"
+#include <com/variant.hpp>
 
 namespace miu::cfg {
+
+class source;
 
 class settings {
   public:
