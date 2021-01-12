@@ -20,6 +20,15 @@ class settings {
         return var.get<T>().value();
     }
 
+    template<typename T>
+    T optional(std::string_view name, T const& default_val) const {
+        auto var = _src->get(name);
+        if (com::type_id<void>::value == var.id()) {
+            return default_val;
+        }
+        return var.get<T>().value();
+    }
+
   private:
     source const* _src;
 };
