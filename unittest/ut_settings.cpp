@@ -2,12 +2,15 @@
 
 #include "source/lib/settings.hpp"
 
+using miu::cfg::source;
 using miu::com::variant;
 using testing::Return;
 
 struct ut_settings : public testing::Test {
-    struct mock : public miu::cfg::source {
+    struct mock : public source {
+        MOCK_METHOD(std::string_view, name, (), (const override));
         MOCK_METHOD(variant, get, (std::string_view), (const override));
+        MOCK_METHOD(source const*, get_child, (std::string_view), (const override));
     } m;
 
     miu::cfg::settings settings { &m };
@@ -33,4 +36,15 @@ TEST_F(ut_settings, optional) {
     EXPECT_EQ(123, settings.optional<int32_t>("item", 321));
     EXPECT_EQ(321, settings.optional<int32_t>("item", 321));
     EXPECT_ANY_THROW(settings.optional<int32_t>("item", 321));
+}
+
+TEST_F(ut_settings, required_child) {
+    mock child_src;
+    EXPECT_CALL(child_src, name()).WillRepeatedly(Return("child_name"));
+    EXPECT_CALL(m, get_child(testing::_)).WillOnce(Return(&child_src)).WillOnce(Return(nullptr));
+
+    auto child = settings.required<miu::cfg::settings>("child");
+    EXPECT_EQ("child_name", child.name());
+
+    EXPECT_ANY_THROW(settings.required<miu::cfg::settings>("child"));
 }

@@ -11,6 +11,8 @@ class settings {
     settings(source const* src)
         : _src(src) {}
 
+    auto name() const { return _src->name(); }
+
     template<typename T>
     T required(std::string_view name) const {
         auto var = _src->get(name);
@@ -32,5 +34,15 @@ class settings {
   private:
     source const* _src;
 };
+
+template<>
+settings
+settings::required<settings>(std::string_view name) const {
+    auto child = _src->get_child(name);
+    if (!child) {
+        FATAL_ERROR("missing child setting", name);
+    }
+    return { child };
+}
 
 }    // namespace miu::cfg
