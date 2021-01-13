@@ -38,7 +38,18 @@ settings::get(std::string_view name) const {
 
 template<>
 settings
-settings::required<settings, std::string_view>(std::string_view key) const {
+settings::required<settings>(std::string_view key) const {
+    assert(_src);
+    auto child = _src->get_child(key);
+    if (!child) {
+        FATAL_ERROR<std::out_of_range>("missing child setting [", key, "]");
+    }
+    return { child };
+}
+
+template<>
+settings
+settings::required<settings>(uint32_t key) const {
     assert(_src);
     auto child = _src->get_child(key);
     if (!child) {

@@ -15,9 +15,15 @@ struct ut_settings : public testing::Test {
         variant get(std::string_view key) const override { return get_by_name(key); }
 
         MOCK_METHOD(variant, get_by_idx, (uint32_t), (const));
-        variant get(uint32_t idx) const override { return get_by_idx(idx); }
+        variant get(uint32_t key) const override { return get_by_idx(key); }
 
-        MOCK_METHOD(source const*, get_child, (std::string_view), (const override));
+        MOCK_METHOD(source const*, get_child_by_idx, (uint32_t), (const override));
+        source const* get_child(uint32_t key) const override { return get_child_by_idx(key); }
+
+        MOCK_METHOD(source const*, get_child_by_name, (std::string_view), (const override));
+        source const* get_child(std::string_view key) const override {
+            return get_child_by_name(key);
+        }
     } m;
 
     miu::cfg::settings settings { &m };
@@ -47,7 +53,7 @@ TEST_F(ut_settings, optional_name) {
     EXPECT_ANY_THROW(settings.optional<int32_t>("item", 321));
 }
 
-TEST_F(ut_settings, required_index) {
+TEST_F(ut_settings, required_idx) {
     EXPECT_CALL(m, get_by_idx(0))
         .WillOnce(Return(variant(123)))
         .WillOnce(Return(variant(256)))
@@ -58,7 +64,7 @@ TEST_F(ut_settings, required_index) {
     EXPECT_ANY_THROW(settings.required<int32_t>(0));
 }
 
-TEST_F(ut_settings, optional_index) {
+TEST_F(ut_settings, optional_idx) {
     EXPECT_CALL(m, get_by_idx(2))
         .WillOnce(Return(variant(123)))
         .WillOnce(Return(variant()))
@@ -71,10 +77,12 @@ TEST_F(ut_settings, optional_index) {
     EXPECT_ANY_THROW(settings.optional<int32_t>(2, 321));
 }
 
-TEST_F(ut_settings, required_child) {
+TEST_F(ut_settings, required_child_name) {
     mock child_src;
     EXPECT_CALL(child_src, name()).WillRepeatedly(Return("child_name"));
-    EXPECT_CALL(m, get_child(testing::_)).WillOnce(Return(&child_src)).WillOnce(Return(nullptr));
+    EXPECT_CALL(m, get_child_by_name(testing::_))
+        .WillOnce(Return(&child_src))
+        .WillOnce(Return(nullptr));
 
     auto child = settings.required<miu::cfg::settings>("child");
     EXPECT_EQ("child_name", child.name());
@@ -82,14 +90,32 @@ TEST_F(ut_settings, required_child) {
     EXPECT_ANY_THROW(settings.required<miu::cfg::settings>("child"));
 }
 
-TEST_F(ut_settings, optional_child) {
+TEST_F(ut_settings, required_child_idx) {
+    mock child_src;
+    EXPECT_CALL(m, get_child_by_idx(1)).WillOnce(Return(&child_src)).WillOnce(Return(nullptr));
+
+    EXPECT_TRUE(settings.required<miu::cfg::settings>(1));
+    EXPECT_ANY_THROW(settings.required<miu::cfg::settings>(1));
+}
+
+TEST_F(ut_settings, optional_child_name) {
     mock child_src;
     EXPECT_CALL(child_src, name()).WillRepeatedly(Return("child_name"));
-    EXPECT_CALL(m, get_child(testing::_)).WillOnce(Return(&child_src)).WillOnce(Return(nullptr));
+    EXPECT_CALL(m, get_child_by_name(testing::_))
+        .WillOnce(Return(&child_src))
+        .WillOnce(Return(nullptr));
 
     auto child = settings.optional<miu::cfg::settings>("child");
     EXPECT_EQ("child_name", child.name());
 
     EXPECT_NO_THROW(child = settings.optional<miu::cfg::settings>("child"));
     EXPECT_FALSE(child);
+}
+
+TEST_F(ut_settings, optional_child_idx) {
+    mock child_src;
+    EXPECT_CALL(m, get_child_by_idx(0)).WillOnce(Return(&child_src)).WillOnce(Return(nullptr));
+
+    EXPECT_TRUE(settings.optional<miu::cfg::settings>(0));
+    EXPECT_FALSE(settings.optional<miu::cfg::settings>(0));
 }
