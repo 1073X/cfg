@@ -18,13 +18,11 @@ class settings {
 
     template<typename T>
     T required(std::string_view key) const {
-        auto var = get(key);
-        return var.template get<T>().value();
+        return get(key).template get<T>().value();
     }
     template<typename T>
     T required(uint32_t key) const {
-        auto var = get(key);
-        return var.template get<T>().value();
+        return get(key).template get<T>().value();
     }
 
     template<typename T, typename K>
