@@ -17,6 +17,16 @@ settings::name() const {
 }
 
 com::variant
+settings::get(uint32_t i) const {
+    assert(_src);
+    auto var = _src->get(i);
+    if (com::type_id<void>::value == var.id()) {
+        FATAL_ERROR<std::out_of_range>("missing required setting [", i, "]");
+    }
+    return var;
+}
+
+com::variant
 settings::get(std::string_view name) const {
     assert(_src);
     auto var = _src->get(name);
@@ -28,20 +38,21 @@ settings::get(std::string_view name) const {
 
 template<>
 settings
-settings::required<settings>(std::string_view name) const {
+settings::required<settings>(std::string_view key) const {
     assert(_src);
-    auto child = _src->get_child(name);
+    auto child = _src->get_child(key);
     if (!child) {
-        FATAL_ERROR<std::out_of_range>("missing child setting [", name, "]");
+        FATAL_ERROR<std::out_of_range>("missing child setting [", key, "]");
     }
     return { child };
 }
 
 template<>
 settings
-settings::optional<settings>(std::string_view name, settings const& default_val) const {
+settings::optional<settings, std::string_view>(std::string_view key,
+                                               settings const& default_val) const {
     assert(_src);
-    auto child = _src->get_child(name);
+    auto child = _src->get_child(key);
     if (!child) {
         return default_val;
     }
