@@ -3,9 +3,9 @@
 #include <cassert>
 #include <com/variant.hpp>
 
-namespace miu::cfg {
+#include "source.hpp"
 
-class source;
+namespace miu::cfg {
 
 class settings {
   public:

@@ -1,7 +1,7 @@
 #include <gmock/gmock.h>
 
 #include "cfg/settings.hpp"
-#include "source/lib/source.hpp"
+#include "cfg/source.hpp"
 
 using miu::cfg::source;
 using miu::com::variant;

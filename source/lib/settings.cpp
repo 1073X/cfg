@@ -3,8 +3,6 @@
 
 #include <com/fatal_error.hpp>
 
-#include "source.hpp"
-
 namespace miu::cfg {
 
 settings::settings(source const* src)
