@@ -1,5 +1,6 @@
 #pragma once
 
+#include <list>
 #include <nlohmann/json.hpp>
 
 #include "json2var.hpp"
@@ -15,7 +16,6 @@ class json_source : public source {
 
     std::string_view name() const override { return _name; }
 
-    // get by index
     com::variant get(uint32_t idx) const {
         if (_src.is_array() && idx < _src.size()) {
             return json2var(_src.at(idx));
@@ -25,18 +25,34 @@ class json_source : public source {
 
     source const* get_child(uint32_t) const override { return nullptr; }
 
-    com::variant get(std::string_view key) const override {
-        if (_src.is_object() && _src.contains(key.data())) {
-            return json2var(_src.at(key.data()));
+    com::variant get(std::string_view name) const override {
+        if (_src.is_object() && _src.contains(name.data())) {
+            return json2var(_src.at(name.data()));
         }
         return {};
     }
 
-    source const* get_child(std::string_view) const override { return nullptr; }
+    source const* get_child(std::string_view name) const override {
+        if (!_src.is_object() || !_src.contains(name.data())) {
+            return nullptr;
+        }
+
+        auto it = std::find_if(_children.begin(), _children.end(), [name](auto const& child) {
+            return name == child.name();
+        });
+        if (_children.end() != it) {
+            return &(*it);
+        }
+
+        _children.emplace_back(name, _src.at(name.data()));
+        return &_children.back();
+    }
 
   private:
     std::string _name;
     nlohmann::json _src;
+
+    mutable std::list<json_source> _children;
 };
 
 }    // namespace miu::cfg

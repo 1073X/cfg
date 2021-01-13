@@ -28,3 +28,18 @@ TEST(ut_json_source, get_by_idx) {
 
     EXPECT_FALSE(src.get(1).get<int32_t>().has_value());
 }
+
+TEST(ut_json_source, get_child_by_name) {
+    nlohmann::json json;
+    json["child2"]["item"] = 1;
+    json["child"]["item"] = 1;
+
+    json_source src { "", json };
+    auto child = src.get_child("child");
+    EXPECT_NE(nullptr, child);
+
+    // return the same child
+    EXPECT_EQ(child, src.get_child("child"));
+
+    EXPECT_EQ(nullptr, src.get_child("not_exists"));
+}
