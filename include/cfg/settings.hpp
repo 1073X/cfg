@@ -16,20 +16,15 @@ class settings {
     auto operator!() const { return !_src; }
     operator bool() const { return !operator!(); }
 
-    template<typename T>
-    T required(std::string_view key) const {
-        auto var = get(key);
-        return var.template get<T>().value();
-    }
-    template<typename T>
-    T required(uint32_t key) const {
+    template<typename T, typename K>
+    T required(K key) const {
         auto var = get(key);
         return var.template get<T>().value();
     }
 
     template<typename T, typename K>
     T optional(K key, T const& default_val = T { 0 }) const try {
-        return required<T>(key);
+        return required<T, K>(key);
     } catch (std::out_of_range const&) {
         return default_val;
     }
@@ -43,9 +38,6 @@ class settings {
 };
 
 template<>
-settings settings::required<settings>(std::string_view) const;
-
-template<>
-settings settings::optional<settings, std::string_view>(std::string_view, settings const&) const;
+settings settings::required<settings, std::string_view>(std::string_view) const;
 
 }    // namespace miu::cfg
