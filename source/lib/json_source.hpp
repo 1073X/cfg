@@ -22,7 +22,7 @@ class json_source : public source {
             return {};
         }
 
-        return json2var(_src.at(idx));
+        return json2var(_src.at(idx), &_strings);
     }
 
     source const* get_child(uint32_t idx) const override {
@@ -39,7 +39,7 @@ class json_source : public source {
             return {};
         }
 
-        return json2var(_src.at(name.data()));
+        return json2var(_src.at(name.data()), &_strings);
     }
 
     source const* get_child(std::string_view name) const override {
@@ -66,6 +66,7 @@ class json_source : public source {
     std::string _name;
     nlohmann::json _src;
 
+    mutable std::vector<std::string> _strings;
     mutable std::list<json_source> _children;
 };
 

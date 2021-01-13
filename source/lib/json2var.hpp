@@ -5,6 +5,6 @@
 
 namespace miu::cfg {
 
-com::variant json2var(nlohmann::json);
+com::variant json2var(nlohmann::json, std::vector<std::string>*);
 
 }
