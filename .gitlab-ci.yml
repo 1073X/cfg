@@ -20,10 +20,29 @@ release:
 
 delivery:
     stage: deliver
+    variables:
+        MIU_PATH: "/opt/staging/miu"
+        INC_PATH: "$MIU_PATH/include"
+        DBG_PATH: "$MIU_PATH/lib-dbg"
+        REL_PATH: "$MIU_PATH/lib-rel"
+        UT_PATH: "$MIU_PATH/unittest"
     script:
         - ./build debug
         - ./build release 
-        - echo 'copy headers, libraries and binaries to staging path'
+
+        - mkdir -p $INC_PATH
+        - rm -fr $INC_PATH/cfg
+        - cp -frv ./include/cfg $INC_PATH
+
+        - mkdir -p $DBG_PATH
+        - cp -fv debug/libcfg.a $DBG_PATH
+
+        - mkdir -p $REL_PATH
+        - cp -fv release/libcfg.a $REL_PATH
+
+        - mkdir -p $UT_PATH
+        - cp -fv release/ut_cfg $UT_PATH
+
     only:
         - master
 
