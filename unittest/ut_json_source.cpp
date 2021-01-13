@@ -43,3 +43,19 @@ TEST(ut_json_source, get_child_by_name) {
 
     EXPECT_EQ(nullptr, src.get_child("not_exists"));
 }
+
+TEST(ut_json_source, get_child_by_idx) {
+    nlohmann::json json;
+    json[0]["item"] = 0;
+    json[1]["item"] = 1;
+
+    json_source src { "name", json };
+    auto child = src.get_child(0);
+    ASSERT_NE(nullptr, child);
+    EXPECT_EQ("name.0", child->name());
+
+    // return the name child
+    EXPECT_EQ(child, src.get_child(0));
+
+    EXPECT_EQ(nullptr, src.get_child(2));
+}

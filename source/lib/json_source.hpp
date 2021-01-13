@@ -1,5 +1,6 @@
 #pragma once
 
+#include <com/strcat.hpp>
 #include <list>
 #include <nlohmann/json.hpp>
 
@@ -17,19 +18,28 @@ class json_source : public source {
     std::string_view name() const override { return _name; }
 
     com::variant get(uint32_t idx) const {
-        if (_src.is_array() && idx < _src.size()) {
-            return json2var(_src.at(idx));
+        if (!_src.is_array() || idx >= _src.size()) {
+            return {};
         }
-        return {};
+
+        return json2var(_src.at(idx));
     }
 
-    source const* get_child(uint32_t) const override { return nullptr; }
+    source const* get_child(uint32_t idx) const override {
+        if (!_src.is_array() || idx >= _src.size()) {
+            return nullptr;
+        }
+
+        auto name = com::strcat { _name, idx }.str();
+        return fetch_child(name, _src.at(idx));
+    }
 
     com::variant get(std::string_view name) const override {
-        if (_src.is_object() && _src.contains(name.data())) {
-            return json2var(_src.at(name.data()));
+        if (!_src.is_object() || !_src.contains(name.data())) {
+            return {};
         }
-        return {};
+
+        return json2var(_src.at(name.data()));
     }
 
     source const* get_child(std::string_view name) const override {
@@ -37,14 +47,18 @@ class json_source : public source {
             return nullptr;
         }
 
-        auto it = std::find_if(_children.begin(), _children.end(), [name](auto const& child) {
-            return name == child.name();
-        });
-        if (_children.end() != it) {
-            return &(*it);
+        return fetch_child(name, _src.at(name.data()));
+    }
+
+  private:
+    source const* fetch_child(std::string_view name, nlohmann::json const& json) const {
+        for (auto const& child : _children) {
+            if (name == child.name()) {
+                return &child;
+            }
         }
 
-        _children.emplace_back(name, _src.at(name.data()));
+        _children.emplace_back(name, json);
         return &_children.back();
     }
 
