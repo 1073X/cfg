@@ -1,9 +1,15 @@
 
 #include "cfg/cmd_source.hpp"
 
+#include <meta/info.hpp>
+
 namespace miu::cfg {
 
 cmd_source::cmd_source(int32_t argc, const char* argv[]) {
+    meta::set_category("tool");
+    meta::set_type(argv[0]);
+    meta::set_name(argv[0]);
+
     _args.emplace("_name_", argv[0]);
 
     auto pos = 0;

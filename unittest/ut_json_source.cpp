@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <meta/info.hpp>
+
 #include "cfg/json_source.hpp"
 
 using miu::cfg::json_source;
@@ -36,7 +38,7 @@ TEST(ut_json_source, get_by_idx) {
 TEST(ut_json_source, get_child_by_name) {
     nlohmann::json json;
     json["child2"]["item"] = 1;
-    json["child"]["item"] = 1;
+    json["child"]["item"]  = 1;
 
     json_source src { "", json };
     auto child = src.get_child("child");
@@ -62,4 +64,16 @@ TEST(ut_json_source, get_child_by_idx) {
     EXPECT_EQ(child, src.get_child(0));
 
     EXPECT_EQ(nullptr, src.get_child(2));
+}
+
+TEST(ut_json_source, metainfo) {
+    nlohmann::json json;
+    json["com"]["category"] = "json_test";
+    json["com"]["type"]     = "json_unittest";
+    json["com"]["name"]     = "ut_json_source";
+
+    json_source src { "name", json };
+    EXPECT_STREQ("json_test", miu::meta::category());
+    EXPECT_STREQ("json_unittest", miu::meta::type());
+    EXPECT_STREQ("ut_json_source", miu::meta::name());
 }
