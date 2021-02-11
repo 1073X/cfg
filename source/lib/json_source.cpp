@@ -3,7 +3,10 @@
 
 #include <com/strcat.hpp>
 #include <list>
+#include <meta/info.hpp>
 #include <utility>
+
+#include "cfg/settings.hpp"
 
 #include "json2var.hpp"
 
@@ -23,17 +26,30 @@ class json_source_impl {
 };
 
 json_source::json_source(std::string_view name, nlohmann::json const& src)
-    : _impl(new json_source_impl { name, src }) {}
+    : _impl(new json_source_impl { name, src }) {
+    if (src.contains("com")) {
+        auto com_src = json_source { "com", src["com"] };
+        auto com_set = settings { &com_src };
 
-json_source::~json_source() { delete _impl; }
+        auto cate = com_set.optional<std::string>("category", meta::category());
+        auto type = com_set.optional<std::string>("type", meta::type());
+        auto name = com_set.optional<std::string>("name", meta::name());
 
-std::string_view
-json_source::name() const {
+        meta::set_category(cate);
+        meta::set_type(type);
+        meta::set_name(name);
+    }
+}
+
+json_source::~json_source() {
+    delete _impl;
+}
+
+std::string_view json_source::name() const {
     return _impl->name;
 }
 
-com::variant
-json_source::get(uint32_t idx) const {
+com::variant json_source::get(uint32_t idx) const {
     if (!_impl->src.is_array() || idx >= _impl->src.size()) {
         return {};
     }
@@ -41,8 +57,7 @@ json_source::get(uint32_t idx) const {
     return json2var(_impl->src.at(idx), &_impl->strings);
 }
 
-source const*
-json_source::get_child(uint32_t idx) const {
+source const* json_source::get_child(uint32_t idx) const {
     if (!_impl->src.is_array() || idx >= _impl->src.size()) {
         return nullptr;
     }
@@ -51,8 +66,7 @@ json_source::get_child(uint32_t idx) const {
     return fetch_child(name, _impl->src.at(idx));
 }
 
-com::variant
-json_source::get(std::string_view name) const {
+com::variant json_source::get(std::string_view name) const {
     if (!_impl->src.is_object() || !_impl->src.contains(name.data())) {
         return {};
     }
@@ -60,8 +74,7 @@ json_source::get(std::string_view name) const {
     return json2var(_impl->src.at(name.data()), &_impl->strings);
 }
 
-source const*
-json_source::get_child(std::string_view name) const {
+source const* json_source::get_child(std::string_view name) const {
     if (!_impl->src.is_object() || !_impl->src.contains(name.data())) {
         return nullptr;
     }
@@ -69,8 +82,7 @@ json_source::get_child(std::string_view name) const {
     return fetch_child(name, _impl->src.at(name.data()));
 }
 
-source const*
-json_source::fetch_child(std::string_view name, nlohmann::json const& json) const {
+source const* json_source::fetch_child(std::string_view name, nlohmann::json const& json) const {
     for (auto const& child : _impl->children) {
         if (name == child.name()) {
             return &child;
