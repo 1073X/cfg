@@ -7,18 +7,14 @@
 using miu::com::variant;
 
 TEST(ut_cmd_source, init) {
-    const char* argv[] = { "app_name" };
-    miu::cfg::cmd_source source { 1, argv };
-    EXPECT_EQ("app_name", source.name());
-}
-
-TEST(ut_cmd_source, metainfo) {
-    const char* argv[] = { "ut_cmd_source" };
+    const char* argv[] = { "/usr/bin/ut_cmd_source" };
     miu::cfg::cmd_source source { 1, argv };
 
     EXPECT_STREQ("tool", miu::meta::category());
     EXPECT_STREQ("ut_cmd_source", miu::meta::type());
     EXPECT_STREQ("ut_cmd_source", miu::meta::name());
+
+    EXPECT_EQ("ut_cmd_source", source.name());
 }
 
 TEST(ut_cmd_source, args) {

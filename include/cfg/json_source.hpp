@@ -13,7 +13,7 @@ class json_source : public source {
     json_source(std::string_view name, nlohmann::json const&);
     ~json_source() override;
 
-    std::string_view name() const override;
+    std::string name() const override;
 
     com::variant get(uint32_t) const override;
     source const* get_child(uint32_t) const override;

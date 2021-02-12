@@ -9,7 +9,7 @@ using testing::Return;
 
 struct ut_settings : public testing::Test {
     struct mock : public source {
-        MOCK_METHOD(std::string_view, name, (), (const override));
+        MOCK_METHOD(std::string, name, (), (const override));
 
         MOCK_METHOD(variant, get_by_name, (std::string_view), (const));
         variant get(std::string_view key) const override { return get_by_name(key); }
