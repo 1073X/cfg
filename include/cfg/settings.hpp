@@ -11,7 +11,7 @@ class settings {
   public:
     settings(source const* src = nullptr);
 
-    std::string_view name() const;
+    std::string name() const;
 
     auto operator!() const { return !_src; }
     operator bool() const { return !operator!(); }

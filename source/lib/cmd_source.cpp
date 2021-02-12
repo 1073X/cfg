@@ -1,16 +1,19 @@
 
 #include "cfg/cmd_source.hpp"
 
+#include <filesystem>
 #include <meta/info.hpp>
 
 namespace miu::cfg {
 
 cmd_source::cmd_source(int32_t argc, const char* argv[]) {
     meta::set_category("tool");
-    meta::set_type(argv[0]);
-    meta::set_name(argv[0]);
 
-    _args.emplace("_name_", argv[0]);
+    std::string cmd_name = std::filesystem::path(argv[0]).filename();
+    meta::set_type(cmd_name);
+    meta::set_name(cmd_name);
+
+    _args.emplace("_name_", cmd_name);
 
     auto pos = 0;
     auto i   = 1;
@@ -45,8 +48,9 @@ cmd_source::cmd_source(std::string_view name, std::vector<com::variant> const& v
     }
 }
 
-std::string_view cmd_source::name() const {
-    return get("_name_").get<const char*>().value();
+std::string cmd_source::name() const {
+    auto var = get("_name_");
+    return var.get<std::string>().value();
 }
 
 com::variant cmd_source::get(uint32_t idx) const {

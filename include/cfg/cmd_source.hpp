@@ -11,7 +11,7 @@ class cmd_source : public source {
     cmd_source(int32_t argc, const char* argv[]);
     cmd_source(std::string_view, std::vector<com::variant> const&);
 
-    std::string_view name() const override;
+    std::string name() const override;
 
     com::variant get(uint32_t) const override;
     source const* get_child(uint32_t) const override;

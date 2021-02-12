@@ -6,16 +6,15 @@
 namespace miu::cfg {
 
 settings::settings(source const* src)
-    : _src(src) {}
+    : _src(src) {
+}
 
-std::string_view
-settings::name() const {
+std::string settings::name() const {
     assert(_src);
     return _src->name();
 }
 
-com::variant
-settings::get(uint32_t i) const {
+com::variant settings::get(uint32_t i) const {
     assert(_src);
     auto var = _src->get(i);
     if (com::type_id<void>::value == var.id()) {
@@ -24,8 +23,7 @@ settings::get(uint32_t i) const {
     return var;
 }
 
-com::variant
-settings::get(std::string_view name) const {
+com::variant settings::get(std::string_view name) const {
     assert(_src);
     auto var = _src->get(name);
     if (com::type_id<void>::value == var.id()) {
@@ -35,8 +33,7 @@ settings::get(std::string_view name) const {
 }
 
 template<>
-settings
-settings::required<settings>(std::string_view key) const {
+settings settings::required<settings>(std::string_view key) const {
     assert(_src);
     auto child = _src->get_child(key);
     if (!child) {
@@ -46,8 +43,7 @@ settings::required<settings>(std::string_view key) const {
 }
 
 template<>
-settings
-settings::required<settings>(uint32_t key) const {
+settings settings::required<settings>(uint32_t key) const {
     assert(_src);
     auto child = _src->get_child(key);
     if (!child) {

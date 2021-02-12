@@ -45,7 +45,7 @@ json_source::~json_source() {
     delete _impl;
 }
 
-std::string_view json_source::name() const {
+std::string json_source::name() const {
     return _impl->name;
 }
 
