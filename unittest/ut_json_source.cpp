@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
 #include <meta/info.hpp>
+#include <time/daytime.hpp>
+#include <time/stamp.hpp>
 
 #include "cfg/json_source.hpp"
 
@@ -12,15 +14,18 @@ TEST(ut_json_source, name) {
 }
 
 TEST(ut_json_source, get_by_name) {
-    using miu::com::datetime;
+    using miu::time::daytime;
+    using miu::time::stamp;
 
     nlohmann::json json;
-    json["item"] = 1;
-    json["time"] = "20210113 17:28:30.000001";
+    json["item"]  = 1;
+    json["time"]  = "20210113 17:28:30.001";
+    json["time2"] = "17:28:30.001";
 
     json_source src { "", json };
     EXPECT_EQ(1, src.get("item").get<int32_t>());
-    EXPECT_EQ(datetime(2021, 1, 13, 17, 28, 30, 1), src.get("time").get<datetime>());
+    EXPECT_EQ(stamp(2021, 1, 13, 17, 28, 30, 1), src.get("time").get<stamp>());
+    EXPECT_EQ(daytime(17, 28, 30, 1), src.get("time2").get<daytime>());
 
     EXPECT_FALSE(src.get("not_exists").get<int32_t>().has_value());
 }
