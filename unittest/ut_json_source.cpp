@@ -71,14 +71,3 @@ TEST(ut_json_source, get_child_by_idx) {
     EXPECT_EQ(nullptr, src.get_child(2));
 }
 
-TEST(ut_json_source, metainfo) {
-    nlohmann::json json;
-    json["com"]["category"] = "json_test";
-    json["com"]["type"]     = "json_unittest";
-    json["com"]["name"]     = "ut_json_source";
-
-    json_source src { "name", json };
-    EXPECT_STREQ("json_test", miu::meta::category());
-    EXPECT_STREQ("json_unittest", miu::meta::type());
-    EXPECT_STREQ("ut_json_source", miu::meta::name());
-}

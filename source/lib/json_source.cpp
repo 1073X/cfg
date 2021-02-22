@@ -27,18 +27,6 @@ class json_source_impl {
 
 json_source::json_source(std::string_view name, nlohmann::json const& src)
     : _impl(new json_source_impl { name, src }) {
-    if (src.contains("com")) {
-        auto com_src = json_source { "com", src["com"] };
-        auto com_set = settings { &com_src };
-
-        auto cate = com_set.optional<std::string>("category", meta::category());
-        auto type = com_set.optional<std::string>("type", meta::type());
-        auto name = com_set.optional<std::string>("name", meta::name());
-
-        meta::set_category(cate);
-        meta::set_type(type);
-        meta::set_name(name);
-    }
 }
 
 json_source::~json_source() {
