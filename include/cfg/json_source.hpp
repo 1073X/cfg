@@ -15,6 +15,7 @@ class json_source : public source {
 
     std::string name() const override;
 
+    uint32_t size() const override;
     com::variant get(uint32_t) const override;
     source const* get_child(uint32_t) const override;
 

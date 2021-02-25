@@ -37,6 +37,10 @@ std::string json_source::name() const {
     return _impl->name;
 }
 
+uint32_t json_source::size() const {
+    return _impl->src.is_array() ? _impl->src.size() : 0;
+}
+
 com::variant json_source::get(uint32_t idx) const {
     if (!_impl->src.is_array() || idx >= _impl->src.size()) {
         return {};

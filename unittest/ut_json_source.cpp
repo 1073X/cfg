@@ -23,6 +23,7 @@ TEST(ut_json_source, get_by_name) {
     json["time2"] = "17:28:30.001";
 
     json_source src { "", json };
+    EXPECT_EQ(0U, src.size());
     EXPECT_EQ(1, src.get("item").get<int32_t>());
     EXPECT_EQ(stamp(2021, 1, 13, 17, 28, 30, 1), src.get("time").get<stamp>());
     EXPECT_EQ(daytime(17, 28, 30, 1), src.get("time2").get<daytime>());
@@ -33,11 +34,14 @@ TEST(ut_json_source, get_by_name) {
 TEST(ut_json_source, get_by_idx) {
     nlohmann::json json;
     json[0] = 1;
+    json[1] = 2;
 
     json_source src { "", json };
+    EXPECT_EQ(2U, src.size());
     EXPECT_EQ(1, src.get(0).get<int32_t>());
+    EXPECT_EQ(2, src.get(1).get<int32_t>());
 
-    EXPECT_FALSE(src.get(1).get<int32_t>().has_value());
+    EXPECT_FALSE(src.get(2).get<int32_t>().has_value());
 }
 
 TEST(ut_json_source, get_child_by_name) {

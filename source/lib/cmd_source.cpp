@@ -6,7 +6,7 @@
 
 namespace miu::cfg {
 
-cmd_source::cmd_source(int32_t argc, const char* argv[]) {
+cmd_source::cmd_source(uint32_t argc, const char* argv[]) {
     meta::set_category("tool");
 
     std::string cmd_name = std::filesystem::path(argv[0]).filename();
@@ -15,33 +15,36 @@ cmd_source::cmd_source(int32_t argc, const char* argv[]) {
 
     _args.emplace("_name_", cmd_name);
 
-    auto pos = 0;
-    auto i   = 1;
-    while (i < argc) {
-        auto key = argv[i++];
+    auto pos = 1U;
 
-        if (key[0] != '-' && key[1] != '-') {
-            _args.emplace(com::to_string(pos++), key);
-        } else {
-            std::vector<com::variant> vals;
-            while (i < argc && argv[i][0] != '-' && argv[i][1] != '-') {
-                vals.emplace_back(argv[i++]);
-            }
+    // positional
+    while (pos < argc && argv[pos][0] != '-' && argv[pos][1] != '-') {
+        _args.emplace(com::to_string(pos - 1), argv[pos]);
+        pos++;
+    }
+    _args.emplace("_size_", pos - 1);
 
-            if (vals.empty()) {    // switch
-                _args.emplace(key + 2, com::variant { true });
-            } else if (vals.size() == 1) {    // key/val
-                _args.emplace(key + 2, vals[0]);
-            } else {    // array
-                auto child = cmd_source { key, vals };
-                _children.emplace(key + 2, child);
-            }
+    // named
+    while (pos < argc) {
+        auto arg = argv[pos++];
+
+        std::vector<com::variant> vals;
+        while (pos < argc && argv[pos][0] != '-' && argv[pos][1] != '-') {
+            vals.emplace_back(argv[pos++]);
         }
+
+        if (vals.empty()) {    // switch
+            vals.emplace_back(true);
+        }
+
+        auto child = cmd_source { arg, vals };
+        _children.emplace(arg + 2, child);
     }
 }
 
 cmd_source::cmd_source(std::string_view name, std::vector<com::variant> const& vals) {
     _args.emplace("_name_", name);
+    _args.emplace("_size_", vals.size());
     for (auto i = 0U; i < vals.size(); i++) {
         auto key = com::to_string(i);
         _args.emplace(key, vals[i]);
@@ -49,12 +52,21 @@ cmd_source::cmd_source(std::string_view name, std::vector<com::variant> const& v
 }
 
 std::string cmd_source::name() const {
-    auto var = get("_name_");
-    return var.get<std::string>().value();
+    auto it = _args.find("_name_");
+    return it->second.get<std::string>().value();
+}
+
+uint32_t cmd_source::size() const {
+    auto it = _args.find("_size_");
+    return it->second.get<uint32_t>().value();
 }
 
 com::variant cmd_source::get(uint32_t idx) const {
-    return get(com::to_string(idx));
+    auto it = _args.find(std::to_string(idx));
+    if (_args.end() == it) {
+        return {};
+    }
+    return it->second;
 }
 
 source const* cmd_source::get_child(uint32_t) const {
@@ -62,11 +74,11 @@ source const* cmd_source::get_child(uint32_t) const {
 }
 
 com::variant cmd_source::get(std::string_view key) const {
-    auto it = _args.find(key.data());
-    if (_args.end() == it) {
+    auto child = get_child(key);
+    if (!child) {
         return com::variant();
     }
-    return it->second;
+    return child->get(0);
 }
 
 source const* cmd_source::get_child(std::string_view key) const {

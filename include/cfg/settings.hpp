@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cassert>
 #include <com/variant.hpp>
 
 #include "source.hpp"
@@ -11,7 +10,8 @@ class settings {
   public:
     settings(source const* src = nullptr);
 
-    std::string name() const;
+    auto name() const { return _src->name(); }
+    auto size() const { return _src->size(); }
 
     auto operator!() const { return !_src; }
     operator bool() const { return !operator!(); }

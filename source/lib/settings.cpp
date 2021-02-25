@@ -1,17 +1,13 @@
 
 #include "cfg/settings.hpp"
 
+#include <cassert>
 #include <com/fatal_error.hpp>
 
 namespace miu::cfg {
 
 settings::settings(source const* src)
     : _src(src) {
-}
-
-std::string settings::name() const {
-    assert(_src);
-    return _src->name();
 }
 
 com::variant settings::get(uint32_t i) const {

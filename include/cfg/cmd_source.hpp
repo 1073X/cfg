@@ -8,11 +8,12 @@ namespace miu::cfg {
 
 class cmd_source : public source {
   public:
-    cmd_source(int32_t argc, const char* argv[]);
+    cmd_source(uint32_t argc, const char* argv[]);
     cmd_source(std::string_view, std::vector<com::variant> const&);
 
     std::string name() const override;
 
+    uint32_t size() const override;
     com::variant get(uint32_t) const override;
     source const* get_child(uint32_t) const override;
 
