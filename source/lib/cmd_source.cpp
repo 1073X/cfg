@@ -6,7 +6,7 @@
 
 namespace miu::cfg {
 
-cmd_source::cmd_source(uint32_t argc, const char* argv[]) {
+cmd_source::cmd_source(int32_t argc, const char* argv[]) {
     meta::set_category("tool");
 
     std::string cmd_name = std::filesystem::path(argv[0]).filename();
@@ -15,7 +15,7 @@ cmd_source::cmd_source(uint32_t argc, const char* argv[]) {
 
     _args.emplace("_name_", cmd_name);
 
-    auto pos = 1U;
+    auto pos = 1;
 
     // positional
     while (pos < argc && argv[pos][0] != '-' && argv[pos][1] != '-') {
