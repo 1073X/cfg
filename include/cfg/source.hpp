@@ -10,11 +10,12 @@ class source {
 
     virtual std::string name() const = 0;
 
-    // get by index
+    // array
+    virtual uint32_t size() const                   = 0;
     virtual com::variant get(uint32_t) const        = 0;
     virtual source const* get_child(uint32_t) const = 0;
 
-    // get by name
+    // object
     virtual com::variant get(std::string_view) const        = 0;
     virtual source const* get_child(std::string_view) const = 0;
 };

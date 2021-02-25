@@ -15,11 +15,13 @@ TEST(ut_cmd_source, init) {
     EXPECT_STREQ("ut_cmd_source", miu::meta::name());
 
     EXPECT_EQ("ut_cmd_source", source.name());
+    EXPECT_EQ(0U, source.size());
 }
 
 TEST(ut_cmd_source, args) {
     const char* argv[] = { "", "--arg0", "1", "--arg1", "abc" };
     miu::cfg::cmd_source source { 5, argv };
+    EXPECT_EQ(0U, source.size());
     EXPECT_EQ(1, source.get("arg0").get<int32_t>());
     EXPECT_EQ("abc", source.get("arg1").get<std::string>());
 
@@ -31,11 +33,25 @@ TEST(ut_cmd_source, child) {
     miu::cfg::cmd_source source { 5, argv };
     auto child = source.get_child("arg");
     ASSERT_NE(nullptr, child);
+    EXPECT_EQ(3U, child->size());
     EXPECT_EQ(1, child->get(0).get<int32_t>());
     EXPECT_EQ(2, child->get(1).get<int32_t>());
     EXPECT_EQ(3, child->get(2).get<int32_t>());
 
     EXPECT_EQ(variant(), source.get(3));
+
+    EXPECT_EQ(nullptr, source.get_child("not_exists"));
+}
+
+TEST(ut_cmd_source, only_child) {
+    const char* argv[] = { "", "--arg", "1" };
+    miu::cfg::cmd_source source { 3, argv };
+    auto child = source.get_child("arg");
+    ASSERT_NE(nullptr, child);
+    EXPECT_EQ(1U, child->size());
+    EXPECT_EQ(1, child->get(0).get<int32_t>());
+
+    EXPECT_EQ(variant(), source.get(1));
 
     EXPECT_EQ(nullptr, source.get_child("not_exists"));
 }
@@ -48,8 +64,9 @@ TEST(ut_cmd_source, switch) {
 }
 
 TEST(ut_cmd_source, positional) {
-    const char* argv[] = { "", "pos0", "pos1" };
-    miu::cfg::cmd_source source { 3, argv };
+    const char* argv[] = { "", "pos0", "pos1", "--switch" };
+    miu::cfg::cmd_source source { 4, argv };
+    EXPECT_EQ(2U, source.size());
     EXPECT_EQ("pos0", source.get(0).get<std::string>());
     EXPECT_EQ("pos1", source.get(1).get<std::string>());
 

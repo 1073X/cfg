@@ -14,6 +14,7 @@ struct ut_settings : public testing::Test {
         MOCK_METHOD(variant, get_by_name, (std::string_view), (const));
         variant get(std::string_view key) const override { return get_by_name(key); }
 
+        MOCK_METHOD(uint32_t, size, (), (const));
         MOCK_METHOD(variant, get_by_idx, (uint32_t), (const));
         variant get(uint32_t key) const override { return get_by_idx(key); }
 
@@ -28,6 +29,11 @@ struct ut_settings : public testing::Test {
 
     miu::cfg::settings settings { &m };
 };
+
+TEST_F(ut_settings, size) {
+    EXPECT_CALL(m, size()).WillOnce(Return(99));
+    EXPECT_EQ(99U, settings.size());
+}
 
 TEST_F(ut_settings, required_name) {
     EXPECT_CALL(m, get_by_name(testing::StrEq("item")))
