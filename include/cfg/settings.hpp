@@ -10,11 +10,14 @@ class settings {
   public:
     settings(source const* src = nullptr);
 
+    auto operator!() const { return !_src; }
+    operator bool() const { return !operator!(); }
+
     auto name() const { return _src->name(); }
     auto size() const { return _src->size(); }
 
-    auto operator!() const { return !_src; }
-    operator bool() const { return !operator!(); }
+    com::variant get(uint32_t) const;
+    com::variant get(std::string_view) const;
 
     template<typename T>
     T required(std::string_view key) const {
@@ -31,10 +34,6 @@ class settings {
     } catch (std::out_of_range const&) {
         return default_val;
     }
-
-  private:
-    com::variant get(uint32_t) const;
-    com::variant get(std::string_view) const;
 
   private:
     source const* _src;
