@@ -9,7 +9,7 @@
 using miu::cfg::json_source;
 
 TEST(ut_json_source, name) {
-    json_source src { "name", nlohmann::json {} };
+    json_source src { "name", miu::com::json {} };
     EXPECT_EQ("name", src.name());
 }
 
@@ -17,7 +17,7 @@ TEST(ut_json_source, get_by_name) {
     using miu::time::daytime;
     using miu::time::stamp;
 
-    nlohmann::json json;
+    miu::com::json json;
     json["item"]  = 1;
     json["time"]  = "20210113 17:28:30.001";
     json["time2"] = "17:28:30.001";
@@ -32,7 +32,7 @@ TEST(ut_json_source, get_by_name) {
 }
 
 TEST(ut_json_source, get_by_idx) {
-    nlohmann::json json;
+    miu::com::json json;
     json[0] = 1;
     json[1] = 2;
 
@@ -45,7 +45,7 @@ TEST(ut_json_source, get_by_idx) {
 }
 
 TEST(ut_json_source, get_child_by_name) {
-    nlohmann::json json;
+    miu::com::json json;
     json["child2"]["item"] = 1;
     json["child"]["item"]  = 1;
 
@@ -60,7 +60,7 @@ TEST(ut_json_source, get_child_by_name) {
 }
 
 TEST(ut_json_source, get_child_by_idx) {
-    nlohmann::json json;
+    miu::com::json json;
     json[0]["item"] = 0;
     json[1]["item"] = 1;
 

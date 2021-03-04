@@ -1,6 +1,6 @@
 #pragma once
 
-#include <nlohmann/json.hpp>
+#include <com/json.hpp>
 
 #include "source.hpp"
 
@@ -10,7 +10,7 @@ class json_source_impl;
 
 class json_source : public source {
   public:
-    json_source(std::string_view name, nlohmann::json const&);
+    json_source(std::string_view name, com::json const&);
     ~json_source() override;
 
     std::string name() const override;
@@ -23,7 +23,7 @@ class json_source : public source {
     source const* get_child(std::string_view) const override;
 
   private:
-    source const* fetch_child(std::string_view name, nlohmann::json const& json) const;
+    source const* fetch_child(std::string_view name, com::json const& json) const;
 
   private:
     json_source_impl* _impl;
