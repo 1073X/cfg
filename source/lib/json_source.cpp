@@ -14,18 +14,18 @@ namespace miu::cfg {
 
 class json_source_impl {
   public:
-    json_source_impl(std::string_view name, nlohmann::json src)
+    json_source_impl(std::string_view name, com::json src)
         : name(name)
         , src(std::move(src)) {}
 
     std::string name;
-    nlohmann::json src;
+    com::json src;
 
     mutable std::vector<std::string> strings;
     mutable std::list<json_source> children;
 };
 
-json_source::json_source(std::string_view name, nlohmann::json const& src)
+json_source::json_source(std::string_view name, com::json const& src)
     : _impl(new json_source_impl { name, src }) {
 }
 
@@ -74,7 +74,7 @@ source const* json_source::get_child(std::string_view name) const {
     return fetch_child(name, _impl->src.at(name.data()));
 }
 
-source const* json_source::fetch_child(std::string_view name, nlohmann::json const& json) const {
+source const* json_source::fetch_child(std::string_view name, com::json const& json) const {
     for (auto const& child : _impl->children) {
         if (name == child.name()) {
             return &child;

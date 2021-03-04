@@ -4,7 +4,7 @@
 namespace miu::cfg {
 
 com::variant
-json2var(nlohmann::json json, std::vector<std::string>* strings) {
+json2var(com::json json, std::vector<std::string>* strings) {
     com::variant var;
     if (json.is_boolean()) {
         var = json.get<bool>();
